@@ -1,0 +1,51 @@
+# Dependencies and package-manager caches
+node_modules/
+**/node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+
+# Next.js / frontend build output
+.next/
+frontend/.next/
+out/
+frontend/out/
+coverage/
+frontend/coverage/
+*.tsbuildinfo
+
+# .NET build output and local tooling
+**/bin/
+**/obj/
+.vs/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+**/appsettings.Development.json
+**/appsettings.Local.json
+secrets.json
+**/secrets.json
+
+# Logs, diagnostics and temporary files
+*.log
+logs/
+*.pid
+*.seed
+*.cache
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Local AI/editor workspace settings
+.agents/
+.idea/
+.vscode/

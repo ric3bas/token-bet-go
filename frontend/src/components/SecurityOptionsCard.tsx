@@ -19,8 +19,8 @@ export const SecurityOptionsCard: React.FC<SecurityOptionsCardProps> = ({ formDa
   const { t } = useLocale();
 
   const options = [
-    { key: 'mint' as const, field: 'revokeMint' as const, title: t('revokeMint'), fee: '+0.05 SOL', icon: Lock, active: formData.revokeMint, accent: 'purple' },
-    { key: 'freeze' as const, field: 'revokeFreeze' as const, title: t('revokeFreeze'), fee: '+0.05 SOL', icon: Snowflake, active: formData.revokeFreeze, accent: 'cyan' },
+    { key: 'mint' as const, field: 'revokeMint' as const, title: t('revokeMint'), fee: 'FREE', icon: Lock, active: formData.revokeMint, accent: 'purple' },
+    { key: 'freeze' as const, field: 'revokeFreeze' as const, title: t('revokeFreeze'), fee: 'FREE', icon: Snowflake, active: formData.revokeFreeze, accent: 'cyan' },
     { key: 'metadata' as const, field: 'immutableMetadata' as const, title: t('immutableMetadata'), fee: 'FREE', icon: CheckCircle2, active: formData.immutableMetadata, accent: 'green' },
   ];
 

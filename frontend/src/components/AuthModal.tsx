@@ -32,7 +32,7 @@ export const AuthModal: React.FC = () => {
   };
 
   const handleGoogleLogin = () => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5236';
     // Redireciona para o fluxo OAuth 2.0 do Google no backend
     window.location.href = `${apiBase}/api/auth/google`;
   };

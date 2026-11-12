@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Copy, Check, ExternalLink, X, Sparkles, Coins } from 'lucide-react';
 import { CreatedTokenResult } from '@/types/token';
+import { useLocale } from '@/context/LocaleContext';
+import { useDeployment } from '@/context/DeploymentContext';
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -17,6 +19,13 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 }) => {
   const [copiedMint, setCopiedMint] = useState(false);
   const [copiedTx, setCopiedTx] = useState(false);
+  const { locale } = useLocale();
+  const { network } = useDeployment();
+  const copy = locale === 'pt'
+    ? { title: 'Token criado com sucesso!', subtitle: 'Seu token SPL foi criado na Solana e está pronto para negociação e liquidez.', identity: 'Identidade do token', supply: 'Fornecimento inicial', mint: 'Endereço do mint', transaction: 'Hash da transação', copyMint: 'Copiar mint', copyHash: 'Copiar hash', copied: 'Copiado!', solscan: 'Ver no Solscan', explorer: 'Explorador Solana', another: 'Criar outro token', numberLocale: 'pt-BR' }
+    : locale === 'es'
+      ? { title: '¡Token creado con éxito!', subtitle: 'Tu token SPL fue creado en Solana y está listo para trading y liquidez.', identity: 'Identidad del token', supply: 'Suministro inicial', mint: 'Dirección del mint', transaction: 'Hash de transacción', copyMint: 'Copiar mint', copyHash: 'Copiar hash', copied: '¡Copiado!', solscan: 'Ver en Solscan', explorer: 'Explorador de Solana', another: 'Crear otro token', numberLocale: 'es-ES' }
+      : { title: 'Token Successfully Created!', subtitle: 'Your SPL token is officially minted on Solana and ready for trading & liquidity.', identity: 'Token Identity', supply: 'Genesis Supply', mint: 'Mint Address', transaction: 'Transaction Hash', copyMint: 'Copy Mint', copyHash: 'Copy Hash', copied: 'Copied!', solscan: 'View on Solscan', explorer: 'Solana Explorer', another: 'Create Another Token', numberLocale: 'en-US' };
 
   if (!isOpen || !tokenResult) return null;
 
@@ -31,7 +40,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
     }
   };
 
-  const networkParam = process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'devnet' ? '?cluster=devnet' : '';
+  const networkParam = network === 'devnet' ? '?cluster=devnet' : '';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-2xl animate-in fade-in duration-300">
@@ -55,26 +64,26 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             <Sparkles className="w-4 h-4 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
           </div>
           <h3 className="text-2xl font-extrabold text-white tracking-tight">
-            Token Successfully Created!
+            {copy.title}
           </h3>
           <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-sm mx-auto">
-            Your SPL token is officially minted on Solana and ready for trading & liquidity.
+            {copy.subtitle}
           </p>
         </div>
 
         {/* Token Specs Preview */}
         <div className="bg-black/50 border border-white/[0.08] rounded-2xl p-4 sm:p-5 mb-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-            <span className="text-xs text-neutral-400">Token Identity</span>
+            <span className="text-xs text-neutral-400">{copy.identity}</span>
             <span className="text-sm font-bold text-white flex items-center gap-1.5">
               {tokenResult.name} <span className="text-purple-400">({tokenResult.symbol})</span>
             </span>
           </div>
 
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-            <span className="text-xs text-neutral-400">Genesis Supply</span>
+            <span className="text-xs text-neutral-400">{copy.supply}</span>
             <span className="text-sm font-mono font-bold text-[#14F195]">
-              {Number(tokenResult.supply).toLocaleString('en-US')} {tokenResult.symbol}
+              {Number(tokenResult.supply).toLocaleString(copy.numberLocale)} {tokenResult.symbol}
             </span>
           </div>
 
@@ -82,7 +91,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                Mint Address
+                {copy.mint}
               </span>
               <button
                 onClick={() => handleCopy(tokenResult.mintAddress, 'mint')}
@@ -91,12 +100,12 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
                 {copiedMint ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-[#14F195]" />
-                    <span className="text-[#14F195] font-medium">Copied!</span>
+                    <span className="text-[#14F195] font-medium">{copy.copied}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Mint</span>
+                    <span>{copy.copyMint}</span>
                   </>
                 )}
               </button>
@@ -110,7 +119,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                Transaction Hash
+                {copy.transaction}
               </span>
               <button
                 onClick={() => handleCopy(tokenResult.txHash, 'tx')}
@@ -119,12 +128,12 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
                 {copiedTx ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-[#14F195]" />
-                    <span className="text-[#14F195] font-medium">Copied!</span>
+                    <span className="text-[#14F195] font-medium">{copy.copied}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Hash</span>
+                    <span>{copy.copyHash}</span>
                   </>
                 )}
               </button>
@@ -143,7 +152,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             rel="noopener noreferrer"
             className="flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-200 text-xs font-medium border border-white/[0.08] hover:border-purple-500/40 transition duration-200 group"
           >
-            <span>View on Solscan</span>
+            <span>{copy.solscan}</span>
             <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-purple-400 transition" />
           </a>
 
@@ -153,7 +162,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             rel="noopener noreferrer"
             className="flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-200 text-xs font-medium border border-white/[0.08] hover:border-[#14F195]/40 transition duration-200 group"
           >
-            <span>Solana Explorer</span>
+            <span>{copy.explorer}</span>
             <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#14F195] transition" />
           </a>
         </div>
@@ -163,7 +172,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           onClick={onClose}
           className="w-full py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-[#9945FF] to-[#14F195] text-black hover:opacity-95 transition-all duration-200 shadow-[0_0_30px_rgba(153,69,255,0.4)] active:scale-95"
         >
-          Create Another Token
+          {copy.another}
         </button>
       </div>
     </div>

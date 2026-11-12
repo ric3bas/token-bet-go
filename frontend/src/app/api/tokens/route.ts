@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:5236';
 
 /**
  * Endpoint Proxy para registrar o token criado no PostgreSQL via backend .NET
@@ -23,9 +23,21 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await backendResponse.json();
+    const payload = await backendResponse.text();
+    let data: unknown = payload ? { error: payload } : {};
+    try {
+      data = payload ? JSON.parse(payload) : {};
+    } catch {
+      // Preserve a non-JSON error response from the .NET API.
+    }
     return NextResponse.json(data, { status: backendResponse.status });
   } catch (error: any) {
+    if (error instanceof TypeError && error.message === 'fetch failed') {
+      return NextResponse.json(
+        { error: 'Backend de registro indisponível. Inicie a API .NET ou configure BACKEND_API_URL.' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { error: error?.message || 'Falha ao registrar token no PostgreSQL.' },
       { status: 500 }

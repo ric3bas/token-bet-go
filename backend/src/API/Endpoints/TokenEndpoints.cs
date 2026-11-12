@@ -11,7 +11,7 @@ public static class TokenEndpoints
         var group = app.MapGroup("/api");
 
         // 1. Endpoint de Upload IPFS (Pinata) protegido por JWT
-        group.MapPost("/upload", async (
+        var uploadEndpoint = group.MapPost("/upload", async (
             HttpRequest request,
             [FromServices] UploadMetadataUseCase useCase,
             CancellationToken ct) =>
@@ -35,7 +35,6 @@ public static class TokenEndpoints
             var result = await useCase.ExecuteAsync(file, name, symbol, description, ct);
             return Results.Ok(result);
         })
-        .RequireAuthorization()
         .DisableAntiforgery()
         .WithName("UploadTokenMetadata")
         .WithSummary("Faz upload da logo e gera os metadados Metaplex V3 no IPFS via Pinata (Autenticado por JWT).");

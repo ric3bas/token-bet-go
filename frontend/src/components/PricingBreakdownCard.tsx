@@ -6,30 +6,19 @@ import { CardSpotlight } from './ui/CardSpotlight';
 import { useLocale } from '@/context/LocaleContext';
 import { useDeployment } from '@/context/DeploymentContext';
 
-interface PricingBreakdownProps {
-  revokeMint: boolean;
-  revokeFreeze: boolean;
-}
-
-export const PricingBreakdownCard: React.FC<PricingBreakdownProps> = ({
-  revokeMint,
-  revokeFreeze,
-}) => {
-  const { t } = useLocale();
+export const PricingBreakdownCard: React.FC = () => {
+  const { t, locale } = useLocale();
   const { network } = useDeployment();
-  const BASE_FEE = 0.03;
-  const REVOKE_MINT_FEE = 0.05;
-  const REVOKE_FREEZE_FEE = 0.05;
-  const GAS_ESTIMATE = 0.005;
+  const PLATFORM_TEST_FEE = 0.001;
+  const NETWORK_ESTIMATE = 0.018;
 
   const isDevnet = network === 'devnet';
-  const totalServiceFee = isDevnet
-    ? 0
-    : BASE_FEE +
-      (revokeMint ? REVOKE_MINT_FEE : 0) +
-      (revokeFreeze ? REVOKE_FREEZE_FEE : 0);
-
-  const totalWithGas = totalServiceFee + GAS_ESTIMATE;
+  const totalWithGas = PLATFORM_TEST_FEE + NETWORK_ESTIMATE;
+  const platformFeeHint = locale === 'pt'
+    ? 'Inclui 0,001 SOL de taxa de validação da plataforma.'
+    : locale === 'es'
+      ? 'Incluye 0,001 SOL de tarifa de validación de la plataforma.'
+      : 'Includes a 0.001 SOL platform validation fee.';
 
   return (
     <CardSpotlight
@@ -66,7 +55,7 @@ export const PricingBreakdownCard: React.FC<PricingBreakdownProps> = ({
             <span>{isDevnet ? 'Devnet rent & gas (dev SOL)' : t('networkCost')}</span>
           </div>
           <span className="font-mono text-neutral-400">
-            ~{GAS_ESTIMATE.toFixed(3)} SOL
+            ~{NETWORK_ESTIMATE.toFixed(3)} SOL
           </span>
         </div>
       </div>
@@ -76,7 +65,11 @@ export const PricingBreakdownCard: React.FC<PricingBreakdownProps> = ({
         <div className="flex items-center justify-between gap-3">
 
           <div className="relative z-10">
-            <div className="text-xs font-medium text-neutral-400">{t('estimatedTotal')}</div>
+            <div className="text-xs font-medium text-neutral-400">
+              {isDevnet
+                ? locale === 'pt' ? 'Estimativa para Mainnet' : locale === 'es' ? 'Estimaci\u00f3n para Mainnet' : 'Mainnet estimate'
+                : t('estimatedTotal')}
+            </div>
           </div>
 
           <div className="shrink-0 text-right">
@@ -85,16 +78,7 @@ export const PricingBreakdownCard: React.FC<PricingBreakdownProps> = ({
             </div>
           </div>
         </div>
-        {isDevnet && (
-          <a
-            href="https://faucet.solana.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-flex text-[11px] font-medium text-[#64b5ff] hover:text-white"
-          >
-            Get dev SOL from Solana Faucet →
-          </a>
-        )}
+        {!isDevnet && <p className="mt-1.5 text-[10px] text-neutral-500">{platformFeeHint}</p>}
       </div>
     </CardSpotlight>
   );

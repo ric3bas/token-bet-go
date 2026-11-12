@@ -6,7 +6,7 @@ export type Locale = 'pt' | 'es' | 'en';
 
 const messages = {
   pt: {
-    appName: 'Criador de Token', tagline: 'Crie e gerencie tokens SPL', selfCustody: 'Autocustódia', signIn: 'Entrar', signing: 'Assinando', signOut: 'Sair',
+    appName: 'Token Bet Go', tagline: 'Crie e gerencie tokens SPL', selfCustody: 'Autocustódia', signIn: 'Entrar', signing: 'Assinando', signOut: 'Sair',
     deployment: 'Criação de token Solana', heading: 'Lance seu token com confiança.', intro: 'Defina o token, escolha as permissões e revise o custo antes de assinar.', walletSigns: 'Sua carteira assina cada transação.',
     tokenDetails: 'Detalhes do token', tokenDetailsHint: 'Defina a identidade e o fornecimento inicial.', tokenName: 'Nome do token *', symbol: 'Símbolo / ticker *', decimals: 'Decimais', supply: 'Fornecimento inicial *', defaultDecimals: 'Padrão: 9 (SPL)', tokens: 'tokens', description: 'Descrição (opcional)',
     permissions: 'Permissões', permissionsHint: 'Escolha quais controles o token mantém após o lançamento.', revokeMint: 'Revogar autoridade de mint', revokeFreeze: 'Revogar autoridade de freeze', immutableMetadata: 'Metadados imutáveis', recommended: 'Recomendado',
@@ -16,7 +16,7 @@ const messages = {
     logo: 'Logo do token', chooseLogo: 'Clique para escolher ou arraste o logo', logoHint: 'Recomendado: PNG ou WebP quadrado, até 5 MB', change: 'Alterar', remove: 'Remover', pinned: 'Armazenado no IPFS', copyAddress: 'Copiar endereço', copied: 'Copiado', changeWallet: 'Trocar carteira', disconnect: 'Desconectar',
   },
   es: {
-    appName: 'Creador de Tokens', tagline: 'Crea y administra tokens SPL', selfCustody: 'Autocustodia', signIn: 'Ingresar', signing: 'Firmando', signOut: 'Salir',
+    appName: 'Token Bet Go', tagline: 'Crea y administra tokens SPL', selfCustody: 'Autocustodia', signIn: 'Ingresar', signing: 'Firmando', signOut: 'Salir',
     deployment: 'Creación de token Solana', heading: 'Lanza tu token con confianza.', intro: 'Define el token, elige los permisos y revisa el costo antes de firmar.', walletSigns: 'Tu billetera firma cada transacción.',
     tokenDetails: 'Detalles del token', tokenDetailsHint: 'Define la identidad y el suministro inicial.', tokenName: 'Nombre del token *', symbol: 'Símbolo / ticker *', decimals: 'Decimales', supply: 'Suministro inicial *', defaultDecimals: 'Predeterminado: 9 (SPL)', tokens: 'tokens', description: 'Descripción (opcional)',
     permissions: 'Permisos', permissionsHint: 'Elige qué controles conserva el token tras el lanzamiento.', revokeMint: 'Revocar autoridad de mint', revokeFreeze: 'Revocar autoridad de freeze', immutableMetadata: 'Metadatos inmutables', recommended: 'Recomendado',
@@ -26,7 +26,7 @@ const messages = {
     logo: 'Logo del token', chooseLogo: 'Haz clic para elegir o arrastra el logo', logoHint: 'Recomendado: PNG o WebP cuadrado, hasta 5 MB', change: 'Cambiar', remove: 'Eliminar', pinned: 'Almacenado en IPFS', copyAddress: 'Copiar dirección', copied: 'Copiado', changeWallet: 'Cambiar billetera', disconnect: 'Desconectar',
   },
   en: {
-    appName: 'Token Creator', tagline: 'Create and manage SPL tokens', selfCustody: 'Self-custody', signIn: 'Sign in', signing: 'Signing', signOut: 'Sign out',
+    appName: 'Token Bet Go', tagline: 'Create and manage SPL tokens', selfCustody: 'Self-custody', signIn: 'Sign in', signing: 'Signing', signOut: 'Sign out',
     deployment: 'Solana token deployment', heading: 'Launch your token with confidence.', intro: 'Define the token, choose its permissions, and review the cost before signing.', walletSigns: 'Your wallet signs every transaction.',
     tokenDetails: 'Token details', tokenDetailsHint: 'Define the identity and initial supply.', tokenName: 'Token name *', symbol: 'Symbol / ticker *', decimals: 'Decimals', supply: 'Initial supply *', defaultDecimals: 'Default: 9 (SPL)', tokens: 'tokens', description: 'Description (optional)',
     permissions: 'Permissions', permissionsHint: 'Choose which controls your token keeps after launch.', revokeMint: 'Revoke Mint Authority', revokeFreeze: 'Revoke Freeze Authority', immutableMetadata: 'Immutable Metadata', recommended: 'Recommended',

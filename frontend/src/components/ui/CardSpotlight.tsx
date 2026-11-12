@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export const CardSpotlight = ({ children, className, ...props }: {
+export const CardSpotlight = ({ children, className, spotlightColor: _spotlightColor, ...props }: {
   children: React.ReactNode;
   className?: string;
   spotlightColor?: string;

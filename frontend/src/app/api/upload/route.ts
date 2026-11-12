@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:5236';
 
 /**
  * Next.js API Gateway / Proxy para o Backend .NET 10
@@ -25,9 +25,21 @@ export async function POST(request: NextRequest) {
       body: formData,
     });
 
-    const data = await backendResponse.json();
+    const payload = await backendResponse.text();
+    let data: unknown = payload ? { error: payload } : {};
+    try {
+      data = payload ? JSON.parse(payload) : {};
+    } catch {
+      // Preserve a non-JSON error response from the .NET API.
+    }
     return NextResponse.json(data, { status: backendResponse.status });
   } catch (error: any) {
+    if (error instanceof TypeError && error.message === 'fetch failed') {
+      return NextResponse.json(
+        { success: false, error: 'Backend de upload indisponível. Inicie a API .NET ou configure BACKEND_API_URL.' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       {
         success: false,

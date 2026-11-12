@@ -40,9 +40,9 @@ const METAPLEX_PROGRAM_ID = new PublicKey(
 
 // Taxas da plataforma em SOL
 export const PLATFORM_FEES = {
-  BASE_FEE_SOL: 0.03,
-  REVOKE_MINT_SOL: 0.05,
-  REVOKE_FREEZE_SOL: 0.05,
+  BASE_FEE_SOL: 0.001,
+  REVOKE_MINT_SOL: 0,
+  REVOKE_FREEZE_SOL: 0,
 };
 
 /**
@@ -66,7 +66,7 @@ export function useCreateToken() {
   const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
   const { token } = useAuth();
-  const { network, canDeployMainnet, markDevnetValidated } = useDeployment();
+  const { network, markDevnetValidated } = useDeployment();
 
   const [status, setStatus] = useState<CreationStatus>({
     step: 'idle',
@@ -88,17 +88,6 @@ export function useCreateToken() {
           step: 'error',
           message: 'Carteira não conectada ou sem suporte para assinatura. Por favor, conecte sua carteira.',
           error: 'WALLET_NOT_CONNECTED',
-        });
-        return null;
-      }
-
-      // A Mainnet mint is a separate on-chain asset. Only unlock it after this
-      // exact configuration has been created and verified on Devnet.
-      if (network === 'mainnet-beta' && !canDeployMainnet(formData, publicKey.toBase58())) {
-        setStatus({
-          step: 'error',
-          message: 'Publique primeiro esta configuração no Devnet e aguarde a validação on-chain antes de usar a Mainnet.',
-          error: 'DEVNET_VALIDATION_REQUIRED',
         });
         return null;
       }
@@ -159,9 +148,8 @@ export function useCreateToken() {
         // dev SOL for account rent and validator fees only; platform transfers
         // are reserved for the irreversible Mainnet deployment.
         const isDevnet = network === 'devnet';
-        let platformTotalFeeSol = isDevnet ? 0 : PLATFORM_FEES.BASE_FEE_SOL;
-        if (!isDevnet && shouldRevokeMint) platformTotalFeeSol += PLATFORM_FEES.REVOKE_MINT_SOL;
-        if (!isDevnet && shouldRevokeFreeze) platformTotalFeeSol += PLATFORM_FEES.REVOKE_FREEZE_SOL;
+        const skipPlatformFees = isDevnet;
+        const platformTotalFeeSol = isDevnet ? 0 : PLATFORM_FEES.BASE_FEE_SOL;
 
         const platformTotalFeeLamports = BigInt(
           Math.round(platformTotalFeeSol * LAMPORTS_PER_SOL)
@@ -181,8 +169,10 @@ export function useCreateToken() {
           const userBalanceSol = (userBalanceLamports / LAMPORTS_PER_SOL).toFixed(4);
           const requiredSol = (Number(requiredBalanceLamports) / LAMPORTS_PER_SOL).toFixed(4);
           throw new Error(isDevnet
-            ? `Saldo Devnet insuficiente. Sua carteira tem ${userBalanceSol} dev SOL e precisa de aproximadamente ${requiredSol} dev SOL para rent e gás. Solicite dev SOL no Solana Faucet e tente novamente.`
-            : `Saldo insuficiente. Seu saldo atual é de ${userBalanceSol} SOL, mas são necessários aproximadamente ${requiredSol} SOL (Taxas da plataforma: ${platformTotalFeeSol.toFixed(2)} SOL + Rent Exemption e gás da Solana).`
+            ? isDevnet
+              ? `Saldo Devnet insuficiente. Sua carteira tem ${userBalanceSol} dev SOL e precisa de aproximadamente ${requiredSol} dev SOL para rent e gás. Solicite dev SOL no Solana Faucet e tente novamente.`
+              : `Saldo Mainnet insuficiente para o teste. Sua carteira tem ${userBalanceSol} SOL e precisa de aproximadamente ${requiredSol} SOL apenas para rent e taxas da rede Solana.`
+            : `Saldo insuficiente. Seu saldo atual é de ${userBalanceSol} SOL, mas são necessários aproximadamente ${requiredSol} SOL (Taxas da plataforma: ${platformTotalFeeSol.toFixed(3)} SOL + Rent Exemption e gás da Solana).`
           );
         }
 
@@ -224,7 +214,11 @@ export function useCreateToken() {
 
         if (!uploadResponse.ok) {
           const errData = await uploadResponse.json().catch(() => null);
-          throw new Error(errData?.error || 'Falha no upload dos metadados para o IPFS.');
+          throw new Error(
+            errData?.error ||
+            errData?.message ||
+            `Falha no upload dos metadados para o IPFS (HTTP ${uploadResponse.status}).`
+          );
         }
 
         const uploadData = await uploadResponse.json();
@@ -339,7 +333,7 @@ export function useCreateToken() {
         );
         transaction.add(createMetadataIx);
 
-        // h. Se revokeMintAuthority for true: Revogar autoridade de Mint + Transferir 0.05 SOL para Treasury
+        // h. Se revokeMintAuthority for true: revogar a autoridade de Mint.
         if (shouldRevokeMint) {
           transaction.add(
             createSetAuthorityInstruction(
@@ -351,14 +345,9 @@ export function useCreateToken() {
               TOKEN_PROGRAM_ID
             )
           );
-          if (!isDevnet) transaction.add(SystemProgram.transfer({
-            fromPubkey: publicKey,
-            toPubkey: treasuryPublicKey,
-            lamports: Math.round(PLATFORM_FEES.REVOKE_MINT_SOL * LAMPORTS_PER_SOL),
-          }));
         }
 
-        // i. Se revokeFreezeAuthority for true: Revogar autoridade de Freeze + Transferir 0.05 SOL para Treasury
+        // i. Se revokeFreezeAuthority for true: revogar a autoridade de Freeze.
         if (shouldRevokeFreeze) {
           transaction.add(
             createSetAuthorityInstruction(
@@ -370,15 +359,10 @@ export function useCreateToken() {
               TOKEN_PROGRAM_ID
             )
           );
-          if (!isDevnet) transaction.add(SystemProgram.transfer({
-            fromPubkey: publicKey,
-            toPubkey: treasuryPublicKey,
-            lamports: Math.round(PLATFORM_FEES.REVOKE_FREEZE_SOL * LAMPORTS_PER_SOL),
-          }));
         }
 
-        // j. SystemProgram.transfer de 0.03 SOL (taxa base da plataforma) para NEXT_PUBLIC_TREASURY_WALLET
-        if (!isDevnet) transaction.add(SystemProgram.transfer({
+        // j. Taxa mínima de validação da plataforma para NEXT_PUBLIC_TREASURY_WALLET.
+        if (!skipPlatformFees) transaction.add(SystemProgram.transfer({
           fromPubkey: publicKey,
           toPubkey: treasuryPublicKey,
           lamports: Math.round(PLATFORM_FEES.BASE_FEE_SOL * LAMPORTS_PER_SOL),
@@ -524,7 +508,7 @@ export function useCreateToken() {
         return null;
       }
     },
-    [publicKey, connection, signTransaction, network, canDeployMainnet, markDevnetValidated]
+    [publicKey, connection, signTransaction, network, markDevnetValidated]
   );
 
   return {

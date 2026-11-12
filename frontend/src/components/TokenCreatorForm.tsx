@@ -38,7 +38,7 @@ const initialFormData: TokenFormData = {
 };
 
 export const TokenCreatorForm: React.FC = () => {
-  const { connected, publicKey } = useWallet();
+  const { connected } = useWallet();
   const { setVisible } = useWalletModal();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<TokenFormData>(initialFormData);
@@ -47,13 +47,14 @@ export const TokenCreatorForm: React.FC = () => {
 
   const { createToken, status, createdToken, resetStatus, isCreating } = useCreateToken();
   const { t, locale } = useLocale();
-  const { network, setNetwork, canDeployMainnet, validatedTest } = useDeployment();
-  const isMainnetReady = canDeployMainnet(formData, publicKey?.toBase58());
+  const { network, setNetwork } = useDeployment();
+  const productionMessage = locale === 'pt' ? 'A Mainnet cria um novo mint permanente com SOL real.' : locale === 'es' ? 'Mainnet crea un mint nuevo y permanente con SOL real.' : 'Mainnet creates a new permanent mint with real SOL.';
   const deploymentCopy = locale === 'pt'
     ? { devnet: 'Devnet (teste)', mainnet: 'Mainnet (produção)', testing: 'Crie e valide um mint de teste usando dev SOL.', locked: 'Conclua o teste no Devnet com esta mesma configuração para liberar a Mainnet.', ready: 'Teste Devnet validado. A Mainnet criará um novo mint permanente.', testAction: 'Validar no Devnet', liveAction: 'Publicar na Mainnet' }
     : locale === 'es'
       ? { devnet: 'Devnet (prueba)', mainnet: 'Mainnet (producción)', testing: 'Crea y valida un mint de prueba usando dev SOL.', locked: 'Completa la prueba en Devnet con esta misma configuración para habilitar Mainnet.', ready: 'Prueba Devnet validada. Mainnet creará un mint nuevo y permanente.', testAction: 'Validar en Devnet', liveAction: 'Publicar en Mainnet' }
       : { devnet: 'Devnet (test)', mainnet: 'Mainnet (production)', testing: 'Create and validate a test mint using dev SOL.', locked: 'Complete the Devnet test with this exact configuration to unlock Mainnet.', ready: 'Devnet test validated. Mainnet will create a new permanent mint.', testAction: 'Validate on Devnet', liveAction: 'Publish on Mainnet' };
+  const faucetLabel = locale === 'pt' ? 'Obter dev SOL no faucet' : locale === 'es' ? 'Obtener dev SOL del faucet' : 'Get dev SOL from faucet';
 
   // Wallet adapters can restore an extension connection before hydration. Keep
   // the server and the first client render identical, then reflect that state.
@@ -165,16 +166,18 @@ export const TokenCreatorForm: React.FC = () => {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex rounded-xl border border-white/[0.10] bg-black/10 p-1" role="group" aria-label="Solana network">
               <button type="button" onClick={() => setNetwork('devnet')} className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition-colors ${network === 'devnet' ? 'bg-[#0a84ff] text-white' : 'text-neutral-400 hover:text-white'}`}>{deploymentCopy.devnet}</button>
-              <button type="button" onClick={() => isMainnetReady && setNetwork('mainnet-beta')} disabled={!isMainnetReady} className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition-colors ${network === 'mainnet-beta' ? 'bg-[#30d158] text-[#07130c]' : 'text-neutral-400'} disabled:cursor-not-allowed disabled:opacity-45`}>{deploymentCopy.mainnet}</button>
+              <button type="button" onClick={() => setNetwork('mainnet-beta')} className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition-colors ${network === 'mainnet-beta' ? 'bg-[#30d158] text-[#07130c]' : 'text-neutral-400 hover:text-white'}`}>{deploymentCopy.mainnet}</button>
             </div>
-            <p className={`text-xs leading-relaxed sm:max-w-[58%] sm:text-right ${network === 'mainnet-beta' || isMainnetReady ? 'text-[#30d158]' : 'text-neutral-400'}`}>
-              {network === 'mainnet-beta' || isMainnetReady ? deploymentCopy.ready : deploymentCopy.testing}
-            </p>
+            {network === 'devnet' ? (
+              <a href="https://faucet.solana.com/" target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#64b5ff] hover:text-white sm:text-right">
+                {faucetLabel}
+              </a>
+            ) : (
+              <p className="text-xs leading-relaxed text-[#30d158] sm:max-w-[58%] sm:text-right">{productionMessage}</p>
+            )}
           </div>
-          {!isMainnetReady && network === 'devnet' && <p className="mt-2 text-[11px] text-neutral-500">{deploymentCopy.locked}</p>}
-          {validatedTest && isMainnetReady && <p className="mt-2 font-mono text-[10px] text-neutral-500">Devnet mint: {validatedTest.mintAddress.slice(0, 8)}…{validatedTest.mintAddress.slice(-6)}</p>}
         </section>
-        <div className="form-layout grid items-start gap-5">
+        <div className="form-layout grid items-stretch gap-5">
           <TokenDetailsCard
             formData={formData}
             onChange={handleFieldChange}
@@ -188,10 +191,7 @@ export const TokenCreatorForm: React.FC = () => {
               disabled={isCreating}
             />
 
-            <PricingBreakdownCard
-              revokeMint={formData.revokeMint}
-              revokeFreeze={formData.revokeFreeze}
-            />
+            <PricingBreakdownCard />
           </div>
         </div>
 

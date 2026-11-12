@@ -91,7 +91,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       {previewUrl ? (
         <div className="relative group/preview border border-white/[0.12] bg-[#05070f]/80 rounded-2xl p-4 flex items-center justify-between transition-all duration-300 hover:border-purple-500/50 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
           <div className="flex items-center space-x-4">
-            <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-white/[0.15] bg-black shadow-inner flex-shrink-0">
+            <div className="relative h-20 w-20 rounded-2xl overflow-hidden border border-white/[0.15] bg-black shadow-inner flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -135,7 +135,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`border border-dashed rounded-xl py-3 px-4 text-center cursor-pointer relative overflow-hidden group ${
+          className={`min-h-[176px] border border-dashed rounded-xl px-4 py-5 text-center cursor-pointer relative overflow-hidden group ${
             isDragging
               ? 'border-[#14F195] bg-[#14F195]/5 shadow-[0_0_30px_rgba(20,241,149,0.15)]'
               : 'border-white/[0.1] hover:border-purple-500/40 bg-white/[0.02] hover:bg-white/[0.04]'

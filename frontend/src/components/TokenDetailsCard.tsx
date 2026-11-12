@@ -39,7 +39,7 @@ export const TokenDetailsCard: React.FC<TokenDetailsCardProps> = ({
   return (
     <CardSpotlight
       spotlightColor="rgba(153, 69, 255, 0.12)"
-      className="app-card-static"
+      className="app-card-static h-full"
     >
       <div className="flex items-center space-x-3 mb-5">
         <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#0a84ff]/15 border border-[#0a84ff]/25 text-[#64b5ff]">
